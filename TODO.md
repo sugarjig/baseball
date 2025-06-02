@@ -1,6 +1,5 @@
 # TODO
 
-- Factor out probabilities to a separate object
 - Implement a roster and players
 - Write Junie guidelines
 - Implement game state properties as observables (read up on delegated properties)
@@ -11,3 +10,4 @@
 - Ask Junie to recommend improvements
 - Test by using Retrosheet event files as a generator
 - Throw exception or return false if nextHalfInning called with illegal state
+- Try Koin for dependency injection

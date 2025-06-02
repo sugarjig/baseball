@@ -1,8 +1,11 @@
-import kotlin.random.Random
+import org.apache.commons.rng.simple.RandomSource
 
 fun main() {
     val runnerAdvancementCalculator = DefaultRunnerAdvancementCalculator()
-    val eventGenerator = EventGenerator(RandomWrapper(Random.Default), runnerAdvancementCalculator)
+    val seed = RandomSource.createLong()
+    val rng = RandomSource.XO_RO_SHI_RO_128_PP.create(seed)
+    val eventTypeSampler = CommonsRngSampler(rng)
+    val eventGenerator = EventGenerator(eventTypeSampler, runnerAdvancementCalculator)
     val observer = GameSimulatorPrinter()
     val gameSimulator = GameSimulator(eventGenerator, observer)
     gameSimulator.simulateGame()

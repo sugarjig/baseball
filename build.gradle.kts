@@ -10,6 +10,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.apache.commons:commons-rng-sampling:1.6")
+    implementation("org.apache.commons:commons-rng-simple:1.6")
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }

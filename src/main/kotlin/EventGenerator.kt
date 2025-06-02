@@ -1,12 +1,14 @@
 class EventGenerator(
-    private val randomGenerator: RandomGenerator,
+    private val eventTypeSampler: EventSampler,
     private val runnerAdvancementCalculator: RunnerAdvancementCalculator
 ) {
     fun generateNextEvent(gameState: GameState): Event {
-        // Check for stolen base attempt
-        if (gameState.firstBase() && !gameState.secondBase() && randomGenerator.nextDouble() < 0.25) {
-            val stealSuccess = randomGenerator.nextDouble() < 0.5
-            val eventType = if (stealSuccess) Event.Type.STOLEN_BASE else Event.Type.CAUGHT_STEALING
+        // Check for a stolen base attempt
+        if (gameState.firstBase() && !gameState.secondBase() && eventTypeSampler.nextDouble() < 0.25) {
+            val eventType = eventTypeSampler.sample(mapOf(
+                Event.Type.STOLEN_BASE to 0.5,
+                Event.Type.CAUGHT_STEALING to 0.5,
+            ))
             val (bases, runsScored, outsAdded) = runnerAdvancementCalculator.calculateAdvancement(gameState, eventType)
             return Event(
                 type = eventType,
@@ -16,26 +18,18 @@ class EventGenerator(
             )
         }
 
-        // Regular event generation
-        val random = randomGenerator.nextDouble()
-        val eventType = when {
-            random < 0.15 -> Event.Type.SINGLE
-            random < 0.22 -> Event.Type.DOUBLE
-            random < 0.24 -> Event.Type.TRIPLE
-            random < 0.27 -> Event.Type.HOME_RUN
-            random < 0.35 -> Event.Type.WALK
-            random < 0.67 -> {
-                // Randomly select one of the out types
-                val outRandom = randomGenerator.nextDouble()
-                when {
-                    outRandom < 0.25 -> Event.Type.GROUND_OUT
-                    outRandom < 0.50 -> Event.Type.FLY_OUT
-                    outRandom < 0.75 -> Event.Type.LINE_OUT
-                    else -> Event.Type.POP_OUT
-                }
-            }
-            else -> Event.Type.STRIKE_OUT
-        }
+        val eventType = eventTypeSampler.sample(mapOf(
+            Event.Type.SINGLE to 0.15,
+            Event.Type.DOUBLE to 0.07,
+            Event.Type.TRIPLE to 0.02,
+            Event.Type.HOME_RUN to 0.03,
+            Event.Type.WALK to 0.08,
+            Event.Type.GROUND_OUT to 0.08,
+            Event.Type.FLY_OUT to 0.08,
+            Event.Type.LINE_OUT to 0.08,
+            Event.Type.POP_OUT to 0.08,
+            Event.Type.STRIKE_OUT to 0.33,
+        ))
 
         val (bases, runsScored, outsAdded) = runnerAdvancementCalculator.calculateAdvancement(gameState, eventType)
 
