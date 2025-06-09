@@ -5,7 +5,7 @@ fun main() {
     val seed = RandomSource.createLong()
     val rng = RandomSource.XO_RO_SHI_RO_128_PP.create(seed)
     val eventTypeSampler = CommonsRngSampler(rng)
-    val eventGenerator = EventGenerator(eventTypeSampler, runnerAdvancementCalculator)
+    val eventGenerator = RandomEventGenerator(eventTypeSampler, runnerAdvancementCalculator)
     val observer = GameSimulatorPrinter()
     val gameSimulator = GameSimulator(eventGenerator, observer)
     gameSimulator.simulateGame()
