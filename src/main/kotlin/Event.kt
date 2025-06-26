@@ -1,8 +1,6 @@
 data class Event(
     val type: Type,
-    val bases: BooleanArray,
-    val runsScored: Int,
-    val outsAdded: Int
+    val runnerAdvancements: List<RunnerAdvancement>,
 ) {
     enum class Type(val description: String) {
         SINGLE("Single"),
@@ -29,23 +27,19 @@ data class Event(
 
         other as Event
 
-        if (runsScored != other.runsScored) return false
-        if (outsAdded != other.outsAdded) return false
         if (type != other.type) return false
-        if (!bases.contentEquals(other.bases)) return false
+        if (runnerAdvancements != other.runnerAdvancements) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = runsScored
-        result = 31 * result + outsAdded
-        result = 31 * result + type.hashCode()
-        result = 31 * result + bases.contentHashCode()
+        var result = type.hashCode()
+        result = 31 * result + runnerAdvancements.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "Event(type=$type, bases=${bases.contentToString()}, runsScored=$runsScored, outsAdded=$outsAdded)"
+        return "Event(type=$type, runnerAdvancements=$runnerAdvancements)"
     }
 }

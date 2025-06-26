@@ -5,9 +5,6 @@ class GameSimulatorPrinter : GameSimulatorObserver {
     
     override fun onNewEvent(event: Event) {
         println(event)
-        if (event.outsAdded == 2) {
-            println("Double play!")
-        }
     }
     
     override fun onGameOver(gameState: GameState) {

@@ -9,12 +9,10 @@ class RandomEventGenerator(
                 Event.Type.STOLEN_BASE to 0.5,
                 Event.Type.CAUGHT_STEALING to 0.5,
             ))
-            val (bases, runsScored, outsAdded) = runnerAdvancementCalculator.calculateAdvancement(gameState, eventType)
+            val runnerAdvancements = runnerAdvancementCalculator.calculateAdvancements(gameState, eventType)
             return Event(
                 type = eventType,
-                bases = bases,
-                runsScored = runsScored,
-                outsAdded = outsAdded
+                runnerAdvancements = runnerAdvancements,
             )
         }
 
@@ -31,13 +29,11 @@ class RandomEventGenerator(
             Event.Type.STRIKE_OUT to 0.33,
         ))
 
-        val (bases, runsScored, outsAdded) = runnerAdvancementCalculator.calculateAdvancement(gameState, eventType)
+        val runnerAdvancements = runnerAdvancementCalculator.calculateAdvancements(gameState, eventType)
 
         return Event(
             type = eventType,
-            bases = bases,
-            runsScored = runsScored,
-            outsAdded = outsAdded
+            runnerAdvancements = runnerAdvancements,
         )
     }
 }

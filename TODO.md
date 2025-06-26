@@ -11,3 +11,4 @@
 - Test by using Retrosheet event files as a generator
 - Throw exception or return false if nextHalfInning called with illegal state
 - Try Koin for dependency injection
+- Remove the type of play from Event and only process runner advancements
