@@ -136,16 +136,16 @@ class GameStateTest {
     inner class ProcessEvent {
         @ParameterizedTest
         @CsvSource(
-            // description, initialInning, initialIsTopInning, initialOuts, initialFirstBase, initialSecondBase, initialThirdBase, initialAwayScore, initialHomeScore, eventType, eventFirstBase, eventSecondBase, eventThirdBase, eventRunsScored, eventOutsAdded, expectedFirstBase, expectedSecondBase, expectedThirdBase, expectedAwayScore, expectedHomeScore, expectedOuts
-            "should update base state from event, 2, true, 1, true, false, true, 3, 2, SINGLE, false, true, true, 0, 0, false, true, true, 3, 2, 1",
-            "should increment away score when runs scored in top of inning, 3, true, 0, false, false, false, 5, 4, HOME_RUN, false, false, false, 4, 0, false, false, false, 9, 4, 0",
-            "should increment home score when runs scored in bottom of inning, 5, false, 2, true, true, true, 7, 6, TRIPLE, false, false, true, 3, 0, false, false, true, 7, 9, 2",
-            "should increment outs by outsAdded from event, 7, true, 1, true, false, false, 2, 2, GROUND_OUT, false, false, false, 0, 1, false, false, false, 2, 2, 2",
-            "should handle double play with two outs added, 4, false, 0, true, true, false, 3, 1, GROUND_OUT, false, false, false, 0, 2, false, false, false, 3, 1, 2",
-            "should handle sacrifice fly with run scored and out added, 6, true, 1, false, false, true, 4, 4, FLY_OUT, false, false, false, 1, 1, false, false, false, 5, 4, 2",
-            "should handle complex event with multiple changes, 9, false, 0, true, true, true, 8, 6, DOUBLE, false, true, false, 2, 1, false, true, false, 8, 8, 1",
-            "should handle event with no changes, 1, true, 0, false, false, false, 0, 0, POP_OUT, false, false, false, 0, 0, false, false, false, 0, 0, 0",
-            "should handle event with maximum possible runs, 3, true, 0, true, true, true, 10, 5, HOME_RUN, false, false, false, 4, 0, false, false, false, 14, 5, 0"
+            // description, initialInning, initialIsTopInning, initialOuts, initialFirstBase, initialSecondBase, initialThirdBase, initialAwayScore, initialHomeScore, eventType, eventBatterEndBase, eventBatterIsOut, eventRunnerFirstEndBase, eventRunnerFirstIsOut, eventRunnerSecondEndBase, eventRunnerSecondIsOut, eventRunnerThirdEndBase, eventRunnerThirdIsOut, expectedFirstBase, expectedSecondBase, expectedThirdBase, expectedAwayScore, expectedHomeScore, expectedOuts
+            "should update base state from event, 2, true, 1, true, false, true, 3, 2, SINGLE, BATTER, false, SECOND, false, THIRD, false, THIRD, false, false, true, true, 3, 2, 1",
+            "should increment away score when runs scored in top of inning, 3, true, 0, false, false, false, 5, 4, HOME_RUN, HOME, false, BATTER, false, BATTER, false, BATTER, false, false, false, false, 6, 4, 0",
+            "should increment home score when runs scored in bottom of inning, 5, false, 2, true, true, true, 7, 6, TRIPLE, THIRD, false, HOME, false, HOME, false, HOME, false, false, false, true, 7, 9, 2",
+            "should increment outs by number of outs from event, 7, true, 1, true, false, false, 2, 2, GROUND_OUT, FIRST, true, SECOND, true, BATTER, false, BATTER, false, false, false, false, 2, 2, 3",
+            "should handle double play with two outs added, 4, false, 0, true, true, false, 3, 1, GROUND_OUT, FIRST, false, SECOND, true, THIRD, true, BATTER, false, true, false, false, 3, 1, 2",
+            "should handle sacrifice fly with run scored and out added, 6, true, 1, false, false, true, 4, 4, FLY_OUT, FIRST, true, BATTER, false, BATTER, false, HOME, false, false, false, false, 5, 4, 2",
+            "should handle complex event with multiple changes, 9, false, 0, true, true, true, 8, 6, DOUBLE, SECOND, false, THIRD, true, HOME, false, HOME, false, false, true, false, 8, 8, 1",
+            "should handle event with no changes, 1, true, 0, false, false, false, 0, 0, POP_OUT, BATTER, false, BATTER, false, BATTER, false, BATTER, false, false, false, false, 0, 0, 0",
+            "should handle event with maximum possible runs, 3, true, 0, true, true, true, 10, 5, HOME_RUN, HOME, false, HOME, false, HOME, false, HOME, false, false, false, false, 14, 5, 0"
         )
         fun `should process events correctly`(
             description: String,
@@ -158,11 +158,14 @@ class GameStateTest {
             initialAwayScore: Int,
             initialHomeScore: Int,
             eventType: Event.Type,
-            eventFirstBase: Boolean,
-            eventSecondBase: Boolean,
-            eventThirdBase: Boolean,
-            eventRunsScored: Int,
-            eventOutsAdded: Int,
+            eventBatterEndBase: RunnerAdvancement.Base,
+            eventBatterIsOut: Boolean,
+            eventRunnerFirstEndBase: RunnerAdvancement.Base,
+            eventRunnerFirstIsOut: Boolean,
+            eventRunnerSecondEndBase: RunnerAdvancement.Base,
+            eventRunnerSecondIsOut: Boolean,
+            eventRunnerThirdEndBase: RunnerAdvancement.Base,
+            eventRunnerThirdIsOut: Boolean,
             expectedFirstBase: Boolean,
             expectedSecondBase: Boolean,
             expectedThirdBase: Boolean,
@@ -182,9 +185,28 @@ class GameStateTest {
             )
             val event = Event(
                 type = eventType,
-                bases = booleanArrayOf(eventFirstBase, eventSecondBase, eventThirdBase),
-                runsScored = eventRunsScored,
-                outsAdded = eventOutsAdded
+                runnerAdvancements = listOf(
+                    RunnerAdvancement(
+                        RunnerAdvancement.Base.BATTER,
+                        eventBatterEndBase,
+                        eventBatterIsOut,
+                    ),
+                    RunnerAdvancement(
+                        RunnerAdvancement.Base.FIRST,
+                        eventRunnerFirstEndBase,
+                        eventRunnerFirstIsOut,
+                    ),
+                    RunnerAdvancement(
+                        RunnerAdvancement.Base.SECOND,
+                        eventRunnerSecondEndBase,
+                        eventRunnerSecondIsOut,
+                    ),
+                    RunnerAdvancement(
+                        RunnerAdvancement.Base.THIRD,
+                        eventRunnerThirdEndBase,
+                        eventRunnerThirdIsOut,
+                    ),
+                ),
             )
 
             // Act

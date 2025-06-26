@@ -79,18 +79,33 @@ class GameState(
 
     // Processes an event and updates the game state
     fun processEvent(event: Event) {
+        // Clear the bases that runners started from
+        event.runnerAdvancements.forEach {
+            if (it.startBase == RunnerAdvancement.Base.FIRST) {
+                this.bases[0] = false
+            } else if (it.startBase == RunnerAdvancement.Base.SECOND) {
+                this.bases[1] = false
+            } else if (it.startBase == RunnerAdvancement.Base.THIRD) {
+                this.bases[2] = false
+            }
+        }
+
         // Update bases with the new state from the event
-        for (i in 0..2) {
-            this.bases[i] = event.bases[i]
+        event.runnerAdvancements.forEach {
+            if (it.isOut) {
+                this.outs++
+            } else {
+                if (it.endBase == RunnerAdvancement.Base.FIRST) {
+                    this.bases[0] = true
+                } else if (it.endBase == RunnerAdvancement.Base.SECOND) {
+                    this.bases[1] = true
+                } else if (it.endBase == RunnerAdvancement.Base.THIRD) {
+                    this.bases[2] = true
+                } else if (it.endBase == RunnerAdvancement.Base.HOME) {
+                    this.scoreRun()
+                }
+            }
         }
-
-        // Add runs to score
-        repeat(event.runsScored) {
-            this.scoreRun()
-        }
-
-        // Add outs
-        this.outs += event.outsAdded
     }
 
     override fun toString(): String {
